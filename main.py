@@ -54,7 +54,7 @@ for ld2l_id in tqdm(new_matches, desc="politely scraping ld2l.gg"):  # tqdm does
     # TODO: again very brittle, just praying they leave their html exactly the same lol
     od_id = int(match_soup.find("p", class_="ld2l-result-description")("a")[1]["href"][33:])
     new_open_dota_ids[ld2l_id] = od_id
-    time.sleep(0.5)
+    time.sleep(1)
 
 # Combine the new ones with the old and save to a file
 all_matches = old_posted | new_open_dota_ids
