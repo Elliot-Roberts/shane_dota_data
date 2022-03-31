@@ -9,7 +9,7 @@ from tqdm import tqdm
 TEST = True
 
 season_id = 31  # 31 is for season 12
-match_list_url = f"https://ld2l.gg/seasons/{season_id}/matches"
+match_list_url = f"https://ld2l.gg/seasons/{season_id}/matches_data"
 
 # This stuff is just so that I don't spam ld2l.gg while testing
 if TEST:
@@ -33,16 +33,16 @@ except FileNotFoundError:
 soup = BeautifulSoup(response.content, features="html.parser")
 table_rows = list(soup.tbody.children)
 middle_columns = [list(row.children)[1] for row in table_rows]
-# We try to only collect the IDs for matches that have finished.
+# We try to only collect the IDs for matches_data that have finished.
 # If there is a span tag in the middle column then results have been posted for the match.
 # (The span is the little crown they put next to the winning team)
 # TODO: make sure the crown is a reliable indicator when in the middle of a season
 posted = set(td.a["href"][9:] for td in middle_columns if td.span is not None)
 new_matches = posted - old_posted.keys()
-assert len(old_posted.keys() - posted) == 0  # no matches were removed from ld2l.gg
+assert len(old_posted.keys() - posted) == 0  # no matches_data were removed from ld2l.gg
 
 if len(new_matches) == 0:
-    print("No new matches")
+    print("No new matches_data")
     exit(0)
 
 # To get the OpenDota IDs we need to make extra requests
@@ -54,7 +54,7 @@ for ld2l_id in tqdm(new_matches, desc="politely scraping ld2l.gg"):  # tqdm does
     # TODO: again very brittle, just praying they leave their html exactly the same lol
     od_id = int(match_soup.find("p", class_="ld2l-result-description")("a")[1]["href"][33:])
     new_open_dota_ids[ld2l_id] = od_id
-    time.sleep(1)
+    time.sleep(15)
 
 # Combine the new ones with the old and save to a file
 all_matches = old_posted | new_open_dota_ids
