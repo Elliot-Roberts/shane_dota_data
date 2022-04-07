@@ -7,3 +7,7 @@ get all of our data.
 
 The script creates a json file in the cwd for caching purposes, in
 addition to the output csv.
+
+Important to note: some parts depend on scraping ld2l.gg websites,
+and they have no obligation to keep their html stable so this could
+break at any time lol.
