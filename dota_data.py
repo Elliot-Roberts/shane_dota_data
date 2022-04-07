@@ -46,7 +46,6 @@ def scrape_ld2l_completed_matches(content: bytes) -> set[int]:
     :param content: content of the ld2l.gg match list page as a bytes object
     :return: set of ld2l IDs for the completed match_data_rows
     """
-    # response = re.get(f"https://ld2l.gg/seasons/{season_id}/match_data_rows")
     soup = BeautifulSoup(content, "html.parser")
     table_rows = list(soup.tbody.children)
     middle_columns = [list(row.children)[1] for row in table_rows]
@@ -61,7 +60,6 @@ def ld2l_to_opendota(content: bytes) -> int:
     :param content: content of the ld2l.gg page for a specific match
     :return: OpenDota match ID posted on ld2l.gg, which is possibly 0 if the game was not played (forfeit etc.)
     """
-    # response = re.get(f"https://ld2l.gg/matches/{content}")
     soup = BeautifulSoup(content, "html.parser")
     od_link = soup.select_one(".ld2l-result-description > a:nth-child(2)")['href']
     return int(od_link[33:])  # take only the ID from the URL
