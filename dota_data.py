@@ -10,12 +10,24 @@ T = TypeVar("T")
 
 
 class RateLimitedPuller:
-    def __init__(self, seconds, base_url=""):
+    def __init__(self, seconds: float, base_url: str = ""):
+        """
+        Initialize an object that makes sure we don't pull from a server too often.
+
+        :param seconds: time required between each request
+        :param base_url: optional string to prepend to each request url
+        """
         self.duration = seconds
         self.prev_pull = 0
         self.base_url = base_url
     
-    def pull(self, url):
+    def pull(self, url: str) -> re.Response:
+        """
+        Get a response from the provided url (appended to the base url) while respecting the rate limit.
+
+        :param url: url appended to base url to make the final request
+        :return: `requests.Response` object
+        """
         now = time.time()
         time_since = now - self.prev_pull
         if time_since < self.duration:
