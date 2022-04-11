@@ -145,7 +145,8 @@ def update_data_for_season(season_id: int, csv_filename: Optional[str] = None) -
     # Fetch ld2l IDs for matches with winners posted on ld2l.gg, and difference this list with what we have cached.
     currently_posted = scrape_ld2l_completed_matches(ld2l_puller.pull(f"seasons/{season_id}/matches").content)
     new_ld2l_ids = currently_posted - cached_ld2l_ids
-    assert len(cached_ld2l_ids - currently_posted) == 0, "cache contains ld2l IDs not present on ld2l.gg"
+    assert len(cached_ld2l_ids - currently_posted) == 0, "cache contains ld2l IDs not present on ld2l.gg." \
+                                                         "you should probably delete the cache and try again."
     
     # We are heavily assuming that no ld2l matches will have the same OpenDota ID.
     # If that sort of thing happens we'd probably have to delete the caches and restart.
