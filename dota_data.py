@@ -4,9 +4,7 @@ import time
 from tqdm import tqdm
 import requests as re
 from bs4 import BeautifulSoup
-from typing import TypeVar, Optional
-
-T = TypeVar("T")
+from typing import Optional
 
 
 class RateLimitedPuller:
@@ -20,7 +18,7 @@ class RateLimitedPuller:
         self.duration = seconds
         self.prev_pull = 0
         self.base_url = base_url
-
+    
     def pull(self, url: str) -> re.Response:
         """
         Get a response from the provided url (appended to the base url) while respecting the rate limit.
@@ -110,11 +108,11 @@ def update_data_for_season(season_id: int, csv_filename: Optional[str] = None) -
     # Generate name for csv if none is given
     if csv_filename is None:
         csv_filename = f"selected_data{season_id}.csv"
-
+    
     # Objects to keep track of how frequently we are pulling from the two sites
     ld2l_puller = RateLimitedPuller(seconds=15, base_url="https://ld2l.gg/")
     od_puller = RateLimitedPuller(seconds=1, base_url="https://api.opendota.com/api/")
-
+    
     # This will be a dictionary with entries {ld2l-match-id: OpenDota-match-id}
     id_pairing_cache_file = f"ld2l_match_id_mapping_s{season_id}.json"
     try:
@@ -124,14 +122,14 @@ def update_data_for_season(season_id: int, csv_filename: Optional[str] = None) -
         cached_id_pairings = {}
     cached_ld2l_ids = set(int(x) for x in cached_id_pairings.keys())
     cached_od_ids = set(cached_id_pairings.values())
-
+    
     try:
         with open(csv_filename, "r", newline='') as fh:
             known_match_data = list(iter(csv.reader(fh)))[1:]  # skipping the header line
     except FileNotFoundError:
         known_match_data = []
     known_data_ids = set(int(row[0]) for row in known_match_data)  # the IDs of matches we already have data for
-
+    
     # We do some checks that probably won't be important in the normal case
     cached_but_no_data = cached_od_ids - known_data_ids
     cached_but_no_data.discard(0)  # we won't have data on un-played games, but this is not a problem
@@ -143,12 +141,12 @@ def update_data_for_season(season_id: int, csv_filename: Optional[str] = None) -
     if len(data_but_no_cache) != 0:
         # this is most likely either a user error or the cache was modified without changing the csv
         print("Warning: csv file contains data on IDs not present in cache.")
-
+    
     # Fetch ld2l IDs for matches with winners posted on ld2l.gg, and difference this list with what we have cached.
     currently_posted = scrape_ld2l_completed_matches(ld2l_puller.pull(f"seasons/{season_id}/matches").content)
     new_ld2l_ids = currently_posted - cached_ld2l_ids
     assert len(cached_ld2l_ids - currently_posted) == 0, "cache contains ld2l IDs not present on ld2l.gg"
-
+    
     # We are heavily assuming that no ld2l matches will have the same OpenDota ID.
     # If that sort of thing happens we'd probably have to delete the caches and restart.
     # TODO: handle error states better
@@ -162,11 +160,11 @@ def update_data_for_season(season_id: int, csv_filename: Optional[str] = None) -
                 known_match_data.append(desired_fields(od_puller.pull(f"matches/{od_id}").json()))
     else:
         print("No new matches.")
-
+    
     # Finally, update the cache and write the csv file
     with open(id_pairing_cache_file, "w") as fh:
         json.dump(cached_id_pairings | new_pairings, fh)
-
+    
     header = ("match_id",
               "radiant_team_id", "r_kills", "r_deaths", "r_assists", "r_xpm", "r_gpm",
               "dire_team_id", "d_kills", "d_deaths", "d_assists", "d_xpm", "d_gpm")
