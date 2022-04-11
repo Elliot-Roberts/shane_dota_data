@@ -7,6 +7,11 @@ import requests as re
 from bs4 import BeautifulSoup
 from typing import Optional
 
+headers = None
+# # uncomment the following line to use a user-agent string to identify yourself to the websites.
+# # it gets used in the `RateLimitedPuller.pull()` function (line 39 as of writing)
+# headers = { "user-agent": "hi im shane boyce idk" }  # did I remember your name right?
+
 
 class RateLimitedPuller:
     def __init__(self, seconds: float, base_url: str = ""):
@@ -31,7 +36,7 @@ class RateLimitedPuller:
         time_since = now - self.prev_pull
         if time_since < self.duration:
             time.sleep(self.duration - time_since)
-        response = re.get(self.base_url + url)
+        response = re.get(self.base_url + url, headers=headers)
         self.prev_pull = time.time()
         return response
 
