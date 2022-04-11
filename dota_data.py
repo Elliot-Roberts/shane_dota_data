@@ -1,6 +1,7 @@
 import csv
 import json
 import time
+import argparse
 from tqdm import tqdm
 import requests as re
 from bs4 import BeautifulSoup
@@ -176,4 +177,11 @@ def update_data_for_season(season_id: int, csv_filename: Optional[str] = None) -
 
 
 if __name__ == '__main__':
-    update_data_for_season(33)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("season_id",
+                        help="the LD2L season ID for the season you want to pull data on",
+                        type=int)
+    parser.add_argument("-f", "--file",
+                        help="the name of the csv file to output match data to")
+    args = parser.parse_args()
+    update_data_for_season(args.season_id, args.file)
